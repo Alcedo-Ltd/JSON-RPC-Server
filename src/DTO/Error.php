@@ -30,7 +30,7 @@ class Error implements \JsonSerializable
      * @throws InvalidErrorException If the provided error code is not valid.
      */
     public function __construct(
-        private readonly  int $code,
+        private readonly int $code,
         private string $message,
         private readonly mixed $data = null,
     ) {
