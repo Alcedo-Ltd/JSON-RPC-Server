@@ -28,7 +28,7 @@ Requirements:
 ### 1) Register procedures in a PSR Container
 Map method names to callables or to instances implementing `RemoteProcedureInterface`.
 
-```
+```php
 use Alcedo\JsonRpc\Server\Server;
 use Alcedo\JsonRpc\Server\Factory\RequestFactory;
 use Alcedo\JsonRpc\Server\RemoteProcedureInterface;
@@ -56,7 +56,7 @@ $server = new Server(new RequestFactory(), $container);
 ```
 
 ### 2) Execute a single request from an array
-```
+```php
 $response = $server->executeArrayRequest([
     'jsonrpc' => '2.0',
     'method' => 'sum',
@@ -71,7 +71,7 @@ json_encode($response); // {"jsonrpc":"2.0","result":5,"id":1}
 ### 3) Execute a PSR-7 request (single or batch)
 `Server::executePsrRequest()` will parse the PSR-7 body (JSON) and handle single or batch automatically.
 
-```
+```php
 use Psr\Http\Message\RequestInterface;
 
 /** @var RequestInterface $psrRequest */
@@ -84,7 +84,7 @@ $rpcResponse = $server->executePsrRequest($psrRequest);
 ### 4) Notifications (no id)
 Requests without `id` are treated as notifications and return `null`, though the procedure is executed.
 
-```
+```php
 $result = $server->executeArrayRequest([
     'jsonrpc' => '2.0',
     'method' => 'notify',
@@ -96,7 +96,7 @@ $result = $server->executeArrayRequest([
 ### 5) Batch requests
 Provide an array of requests; notifications are omitted from the resulting `BatchResponse`.
 
-```
+```php
 $rpcResponse = $server->executePsrRequest($psrRequest); // body contains JSON array
 // $rpcResponse is Alcedo\JsonRpc\Server\DTO\BatchResponse and is countable
 ```
@@ -148,7 +148,7 @@ Transformations and exceptions:
 ## Examples
 
 ### Callable procedure
-```
+```php
 $server = new Server(new RequestFactory(), $container);
 $response = $server->executeArrayRequest([
     'jsonrpc' => '2.0', 'method' => 'sum', 'id' => 1, 'params' => [10, 5]
@@ -157,7 +157,7 @@ $response = $server->executeArrayRequest([
 ```
 
 ### Object procedure (RemoteProcedureInterface)
-```
+```php
 class HelloProc implements RemoteProcedureInterface {
     public function call(): Response { return new Response(result: 'hello', id: 7); }
 }
@@ -169,7 +169,7 @@ $response = $server->executeArrayRequest(['jsonrpc' => '2.0', 'method' => 'hello
 ```
 
 ### Batch via PSR-7 request
-```
+```php
 $body = json_encode([
     ['jsonrpc' => '2.0', 'method' => 'sum', 'id' => 1, 'params' => [1, 2]],
     ['jsonrpc' => '2.0', 'method' => 'hello', 'id' => 2],
