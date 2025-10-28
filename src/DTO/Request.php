@@ -82,13 +82,13 @@ readonly class Request implements \JsonSerializable
     {
         $data = [
             'jsonrpc' => $this->jsonRpc(),
-            'method' => $this->method,
+            'method' => $this->method(),
         ];
-        if ($this->id !== null) {
-            $data['id'] = $this->id;
+        if ($this->id() !== null) {
+            $data['id'] = $this->id();
         }
         if ($this->params()) {
-            $data['params'] = $this->params;
+            $data['params'] = $this->params();
         }
 
         return $data;
