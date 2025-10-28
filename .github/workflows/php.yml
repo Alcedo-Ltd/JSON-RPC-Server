@@ -33,7 +33,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Run unit tests
-        run: composer run-script test
+        run: composer run-script tests
 
       - name: Run phpcs
         run: composer run-script phpcs
