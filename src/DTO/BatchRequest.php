@@ -20,11 +20,11 @@ class BatchRequest extends Batch
      *
      * @return void
      *
-     * @throws InvalidBatchElementException If the value is not an instance of Request.
+     * @throws InvalidBatchElementException If the value is not an instance of Request or Error.
      */
     protected function validateElement(mixed $value): void
     {
-        if (!$value instanceof Request) {
+        if (!($value instanceof Request) && !($value instanceof Error)) {
             throw new InvalidBatchElementException('Only Request objects are allowed.');
         }
     }

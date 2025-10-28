@@ -110,7 +110,8 @@ readonly class Response implements \JsonSerializable
      * Validates the response to ensure it does not contain both a result and an error.
      *
      * @return void
-     * @throws InvalidResponseException( If both result and error are set in the response.
+     *
+     * @throws InvalidResponseException If both result and error are set in the response.
      */
     private function validateResponse(): void
     {
