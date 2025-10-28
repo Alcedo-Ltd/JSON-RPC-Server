@@ -37,7 +37,7 @@ class RequestFactory
     {
         try {
             $body = json_decode($request->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
-        } catch (JsonException|ValueError $exception) {
+        } catch (JsonException | ValueError $exception) {
             throw ErrorException::fromErrorCode(ErrorCodes::PARSE_ERROR, $exception);
         }
         if (array_key_exists(0, $body)) {

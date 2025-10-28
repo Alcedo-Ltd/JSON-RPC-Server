@@ -16,7 +16,6 @@ use Alcedo\JsonRpc\Server\Factory\ErrorFactory;
 use Alcedo\JsonRpc\Server\Factory\RequestFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -47,7 +46,7 @@ readonly class Server
      *
      * @return Response|BatchResponse|null The processed response.
      *
-     * @throws NotFoundExceptionInterface|ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
      * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
      * @throws InvalidResponseException If both result and error are set in the response.
      * @throws InvalidBatchElementException
@@ -68,7 +67,7 @@ readonly class Server
      *
      * @return Response|BatchResponse|null The response generated from processing the request.
      *
-     * @throws NotFoundExceptionInterface|ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
      * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
      * @throws InvalidResponseException If both result and error are set in the response.
      * @throws InvalidBatchElementException
@@ -89,7 +88,7 @@ readonly class Server
      *
      * @return Response|BatchResponse|null Returns a response, batch response, or null if the request is a notification.
      *
-     * @throws NotFoundExceptionInterface|ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
      * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
      * @throws InvalidResponseException If both result and error are set in the response.
      * @throws InvalidBatchElementException
@@ -115,7 +114,7 @@ readonly class Server
      *
      * @return BatchResponse The resulting batch response after processing all items.
      *
-     * @throws NotFoundExceptionInterface|ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
      * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
      * @throws InvalidResponseException If both result and error are set in the response.
      * @throws InvalidBatchElementException
@@ -145,7 +144,7 @@ readonly class Server
      *
      * @return Response A response object containing the result or an error, along with the request identifier.
      *
-     * @throws NotFoundExceptionInterface|ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
      * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
      * @throws InvalidResponseException If both result and error are set in the response.
      */
