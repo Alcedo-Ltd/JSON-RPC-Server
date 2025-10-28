@@ -9,6 +9,7 @@ use Alcedo\JsonRpc\Server\Exception\ErrorException;
 use Alcedo\JsonRpc\Server\Exception\InvalidBatchElementException;
 use Alcedo\JsonRpc\Server\Exception\InvalidErrorException;
 use Alcedo\JsonRpc\Server\Exception\InvalidMethodNameException;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ValueError;
 use JsonException;
@@ -21,7 +22,7 @@ class RequestFactory
     /**
      * Creates a Request or BatchRequest object from the provided ServerRequestInterface instance.
      *
-     * @param ServerRequestInterface $request The server request instance from which to construct the object.
+     * @param RequestInterface $request The server request instance from which to construct the object.
      *
      * @return Request|BatchRequest Returns a Request object if the body of the request represents a single request,
      *                              or a BatchRequest object if the body represents a batch of requests.
@@ -32,7 +33,7 @@ class RequestFactory
      * @throws InvalidBatchElementException If the body of the request contains invalid JSON, that cannot be parsed.
      * @throws InvalidMethodNameException|InvalidErrorException If the method name is invalid.
      */
-    public function fromServerRequest(ServerRequestInterface $request): Request|BatchRequest
+    public function fromServerRequest(RequestInterface $request): Request|BatchRequest
     {
         try {
             $body = json_decode($request->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);

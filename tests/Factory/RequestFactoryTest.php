@@ -6,11 +6,10 @@ use Alcedo\JsonRpc\Server\DTO\BatchRequest;
 use Alcedo\JsonRpc\Server\DTO\Error;
 use Alcedo\JsonRpc\Server\DTO\Request;
 use Alcedo\JsonRpc\Server\Exception\ErrorException;
-use Alcedo\JsonRpc\Server\Exception\InvalidBatchElementException;
 use Alcedo\JsonRpc\Server\Exception\InvalidMethodNameException;
 use Alcedo\JsonRpc\Server\Factory\RequestFactory;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 
 class RequestFactoryTest extends TestCase
@@ -22,7 +21,7 @@ class RequestFactoryTest extends TestCase
     {
         $requestArray = ['method' => 'testMethod', 'id' => 1, 'params' => ['param1' => 'value1']];
         $jsonBody = json_encode($requestArray);
-        $mockRequest = $this->createMock(ServerRequestInterface::class);
+        $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
         $factory = new RequestFactory();
@@ -43,7 +42,7 @@ class RequestFactoryTest extends TestCase
     public function testFromServerRequestWithNullParams(): void
     {
         $jsonBody = json_encode(['method' => 'testMethod', 'id' => 1]);
-        $mockRequest = $this->createMock(ServerRequestInterface::class);
+        $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
         $factory = new RequestFactory();
@@ -64,7 +63,7 @@ class RequestFactoryTest extends TestCase
             ['method' => 'testMethod1', 'id' => 1, 'params' => ['param1' => 'value1']],
             ['method' => 'testMethod2', 'id' => 2, 'params' => ['param2' => 'value2']],
         ]);
-        $mockRequest = $this->createMock(ServerRequestInterface::class);
+        $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
         $factory = new RequestFactory();
@@ -89,7 +88,7 @@ class RequestFactoryTest extends TestCase
      */
     public function testFromServerRequestInvalidJson(): void
     {
-        $mockRequest = $this->createMock(ServerRequestInterface::class);
+        $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream("{invalid: 'json'}"));
 
         $factory = new RequestFactory();
@@ -104,7 +103,7 @@ class RequestFactoryTest extends TestCase
     public function testFromServerRequestMissingMethod(): void
     {
         $jsonBody = json_encode(['id' => 1, 'params' => ['param1' => 'value1']]);
-        $mockRequest = $this->createMock(ServerRequestInterface::class);
+        $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
         $factory = new RequestFactory();
@@ -121,7 +120,7 @@ class RequestFactoryTest extends TestCase
         $jsonBody = json_encode([
             ['id' => 2, 'params' => ['param2' => 'value2']],
         ]);
-        $mockRequest = $this->createMock(ServerRequestInterface::class);
+        $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
         $factory = new RequestFactory();
@@ -136,7 +135,7 @@ class RequestFactoryTest extends TestCase
             'method' => 'rpc.invalid.method',
             'params' => ['param2' => 'value2'],
         ]);
-        $mockRequest = $this->createMock(ServerRequestInterface::class);
+        $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
         $factory = new RequestFactory();
