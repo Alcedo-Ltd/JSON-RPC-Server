@@ -1,0 +1,184 @@
+<?php
+
+namespace Alcedo\JsonRpc\Server;
+
+use Alcedo\JsonRpc\Server\DTO\BatchRequest;
+use Alcedo\JsonRpc\Server\DTO\BatchResponse;
+use Alcedo\JsonRpc\Server\DTO\Error;
+use Alcedo\JsonRpc\Server\DTO\Request;
+use Alcedo\JsonRpc\Server\DTO\Response;
+use Alcedo\JsonRpc\Server\Exception\ErrorException;
+use Alcedo\JsonRpc\Server\Exception\InvalidBatchElementException;
+use Alcedo\JsonRpc\Server\Exception\InvalidErrorException;
+use Alcedo\JsonRpc\Server\Exception\InvalidMethodNameException;
+use Alcedo\JsonRpc\Server\Exception\InvalidResponseException;
+use Alcedo\JsonRpc\Server\Factory\ErrorFactory;
+use Alcedo\JsonRpc\Server\Factory\RequestFactory;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\RequestInterface;
+
+/**
+ * A readonly class implementing a JSON-RPC 2.0 server. Handles the execution of JSON-RPC requests,
+ * including single requests and batch requests, and produces corresponding JSON-RPC responses.
+ */
+readonly class Server
+{
+    /**
+     * Constructor method.
+     *
+     * @param RequestFactory $requestFactory A factory to create request instances.
+     * @param ContainerInterface $procedures A container that holds procedures.
+     *
+     * @return void
+     */
+    public function __construct(
+        private RequestFactory $requestFactory,
+        private ContainerInterface $procedures
+    ) {
+        // ...
+    }
+
+    /**
+     * Executes a PSR-7 compatible request and returns a response.
+     *
+     * @param RequestInterface $request The PSR-7 request to be processed.
+     *
+     * @return Response|BatchResponse|null The processed response.
+     *
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
+     * @throws InvalidResponseException If both result and error are set in the response.
+     * @throws InvalidBatchElementException
+     * @throws InvalidMethodNameException
+     * @throws ErrorException
+     */
+    public function executePsrRequest(RequestInterface $request): Response|BatchResponse|null
+    {
+        $rpcRequest = $this->requestFactory->fromServerRequest($request);
+
+        return $this->execute($rpcRequest);
+    }
+
+    /**
+     * Executes an array-based request and returns a response.
+     *
+     * @param array $request The request data in array format.
+     *
+     * @return Response|BatchResponse|null The response generated from processing the request.
+     *
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
+     * @throws InvalidResponseException If both result and error are set in the response.
+     * @throws InvalidBatchElementException
+     * @throws InvalidMethodNameException
+     * @throws ErrorException
+     */
+    public function executeArrayRequest(array $request): Response|BatchResponse|null
+    {
+        $rpcRequest = $this->requestFactory->fromArray($request);
+
+        return $this->execute($rpcRequest);
+    }
+
+    /**
+     * Executes the given request or batch request and processes the response.
+     *
+     * @param Request|BatchRequest $request The request or batch request to be executed.
+     *
+     * @return Response|BatchResponse|null Returns a response, batch response, or null if the request is a notification.
+     *
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
+     * @throws InvalidResponseException If both result and error are set in the response.
+     * @throws InvalidBatchElementException
+     */
+    public function execute(Request|BatchRequest $request): Response|BatchResponse|null
+    {
+        if ($request instanceof BatchRequest) {
+            return $this->processBatchRequests($request);
+        }
+
+        $response = $this->processRequest($request);
+        if (!$request->isNotification()) {
+            return $response;
+        }
+
+        return null;
+    }
+
+    /**
+     * Processes a batch of requests and generates a batch response.
+     *
+     * @param BatchRequest $request The batch request containing multiple items to process.
+     *
+     * @return BatchResponse The resulting batch response after processing all items.
+     *
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
+     * @throws InvalidResponseException If both result and error are set in the response.
+     * @throws InvalidBatchElementException
+     */
+    private function processBatchRequests(BatchRequest $request): BatchResponse
+    {
+        $batchResponse = new BatchResponse();
+        foreach ($request as $item) {
+            /** @var Request|Error $item */
+            if ($item instanceof Request) {
+                $response = $this->processRequest($item);
+                if (!$item->isNotification()) {
+                    $batchResponse->append($response);
+                }
+            } else {
+                $batchResponse->append($item);
+            }
+        }
+
+        return $batchResponse;
+    }
+
+    /**
+     * Processes an incoming request and returns an appropriate response.
+     *
+     * @param Request $request The request object containing the method, parameters, and identifier.
+     *
+     * @return Response A response object containing the result or an error, along with the request identifier.
+     *
+     * @throws ContainerExceptionInterface If the procedure is not found in the container.
+     * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
+     * @throws InvalidResponseException If both result and error are set in the response.
+     */
+    private function processRequest(Request $request): Response
+    {
+        $id = $request->id();
+        $method = $request->method();
+        $params = $request->params();
+        if (!$this->procedures->has($method)) {
+            return new Response(error: ErrorFactory::methodNotFound(data: ['method' => $method]), id: $id);
+        }
+        $procedure = $this->procedures->get($method);
+        if ($procedure instanceof RemoteProcedureInterface) {
+            return $procedure->call(...$params);
+        }
+
+        if (!is_callable($procedure)) {
+            return new Response(
+                error: ErrorFactory::serverError(message: 'Procedure is not callable', data: ['method' => $method]),
+                id: $id
+            );
+        }
+        try {
+            $result = call_user_func_array($procedure, $request->params());
+        } catch (\Throwable $e) {
+            return new Response(
+                error: ErrorFactory::internalError(
+                    message: $e->getMessage(),
+                    data: ['method' => $method, 'params' => $params]
+                ),
+                id: $id
+            );
+        }
+
+        return new Response(result: $result, id: $id);
+    }
+}
