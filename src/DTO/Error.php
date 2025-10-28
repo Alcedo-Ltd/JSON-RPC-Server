@@ -31,7 +31,7 @@ class Error implements \JsonSerializable
      */
     public function __construct(
         private readonly int $code,
-        private string $message,
+        private string $message = '',
         private readonly mixed $data = null,
     ) {
         $this->errorCode = ErrorCodes::fromValue($this->code);
