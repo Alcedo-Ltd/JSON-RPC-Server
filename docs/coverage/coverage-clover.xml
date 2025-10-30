@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1761675981">
-  <project timestamp="1761675981" name="Clover Coverage">
+<coverage generated="1761839863">
+  <project timestamp="1761839863" name="Clover Coverage">
     <package name="Alcedo\JsonRpc\Server\DTO">
       <file name="/home/kiril/Projects/alcedo/json-rpc-server/src/DTO/Batch.php">
         <class name="Alcedo\JsonRpc\Server\DTO\Batch" namespace="Alcedo\JsonRpc\Server\DTO">
@@ -121,7 +121,7 @@
       </file>
       <file name="/home/kiril/Projects/alcedo/json-rpc-server/src/DTO/Response.php">
         <class name="Alcedo\JsonRpc\Server\DTO\Response" namespace="Alcedo\JsonRpc\Server\DTO">
-          <metrics complexity="12" methods="8" coveredmethods="8" conditionals="0" coveredconditionals="0" statements="17" coveredstatements="17" elements="25" coveredelements="25"/>
+          <metrics complexity="13" methods="9" coveredmethods="9" conditionals="0" coveredconditionals="0" statements="18" coveredstatements="18" elements="27" coveredelements="27"/>
         </class>
         <line num="29" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="12"/>
         <line num="34" type="stmt" count="12"/>
@@ -131,24 +131,26 @@
         <line num="54" type="stmt" count="4"/>
         <line num="62" type="method" name="id" visibility="public" complexity="1" crap="1" count="5"/>
         <line num="64" type="stmt" count="5"/>
-        <line num="72" type="method" name="isError" visibility="public" complexity="1" crap="1" count="9"/>
-        <line num="74" type="stmt" count="9"/>
-        <line num="82" type="method" name="isSuccess" visibility="public" complexity="1" crap="1" count="6"/>
-        <line num="84" type="stmt" count="6"/>
-        <line num="92" type="method" name="jsonSerialize" visibility="public" complexity="3" crap="3" count="2"/>
-        <line num="94" type="stmt" count="2"/>
-        <line num="95" type="stmt" count="2"/>
-        <line num="96" type="stmt" count="2"/>
-        <line num="97" type="stmt" count="2"/>
-        <line num="98" type="stmt" count="1"/>
-        <line num="100" type="stmt" count="1"/>
-        <line num="102" type="stmt" count="2"/>
-        <line num="103" type="stmt" count="2"/>
+        <line num="74" type="method" name="setId" visibility="public" complexity="1" crap="1" count="6"/>
+        <line num="76" type="stmt" count="6"/>
+        <line num="84" type="method" name="isError" visibility="public" complexity="1" crap="1" count="9"/>
+        <line num="86" type="stmt" count="9"/>
+        <line num="94" type="method" name="isSuccess" visibility="public" complexity="1" crap="1" count="6"/>
+        <line num="96" type="stmt" count="6"/>
+        <line num="104" type="method" name="jsonSerialize" visibility="public" complexity="3" crap="3" count="2"/>
         <line num="106" type="stmt" count="2"/>
-        <line num="116" type="method" name="validateResponse" visibility="private" complexity="3" crap="3" count="12"/>
-        <line num="118" type="stmt" count="12"/>
-        <line num="119" type="stmt" count="1"/>
-        <metrics loc="123" ncloc="68" classes="1" methods="8" coveredmethods="8" conditionals="0" coveredconditionals="0" statements="17" coveredstatements="17" elements="25" coveredelements="25"/>
+        <line num="107" type="stmt" count="2"/>
+        <line num="108" type="stmt" count="2"/>
+        <line num="109" type="stmt" count="2"/>
+        <line num="110" type="stmt" count="1"/>
+        <line num="112" type="stmt" count="1"/>
+        <line num="114" type="stmt" count="2"/>
+        <line num="115" type="stmt" count="2"/>
+        <line num="118" type="stmt" count="2"/>
+        <line num="128" type="method" name="validateResponse" visibility="private" complexity="3" crap="3" count="12"/>
+        <line num="130" type="stmt" count="12"/>
+        <line num="131" type="stmt" count="1"/>
+        <metrics loc="135" ncloc="73" classes="1" methods="9" coveredmethods="9" conditionals="0" coveredconditionals="0" statements="18" coveredstatements="18" elements="27" coveredelements="27"/>
       </file>
     </package>
     <package name="Alcedo\JsonRpc\Server\Exception">
@@ -266,59 +268,64 @@
     <package name="Alcedo\JsonRpc\Server">
       <file name="/home/kiril/Projects/alcedo/json-rpc-server/src/Server.php">
         <class name="Alcedo\JsonRpc\Server\Server" namespace="Alcedo\JsonRpc\Server">
-          <metrics complexity="15" methods="6" coveredmethods="6" conditionals="0" coveredconditionals="0" statements="42" coveredstatements="42" elements="48" coveredelements="48"/>
+          <metrics complexity="16" methods="7" coveredmethods="7" conditionals="0" coveredconditionals="0" statements="46" coveredstatements="46" elements="53" coveredelements="53"/>
         </class>
-        <line num="35" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="9"/>
-        <line num="40" type="stmt" count="9"/>
-        <line num="56" type="method" name="executePsrRequest" visibility="public" complexity="1" crap="1" count="3"/>
-        <line num="58" type="stmt" count="3"/>
-        <line num="60" type="stmt" count="3"/>
-        <line num="77" type="method" name="executeArrayRequest" visibility="public" complexity="1" crap="1" count="6"/>
-        <line num="79" type="stmt" count="6"/>
-        <line num="81" type="stmt" count="6"/>
-        <line num="96" type="method" name="execute" visibility="public" complexity="3" crap="3" count="9"/>
-        <line num="98" type="stmt" count="9"/>
-        <line num="99" type="stmt" count="2"/>
-        <line num="102" type="stmt" count="7"/>
+        <line num="36" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="9"/>
+        <line num="41" type="stmt" count="9"/>
+        <line num="57" type="method" name="executePsrRequest" visibility="public" complexity="1" crap="1" count="3"/>
+        <line num="59" type="stmt" count="3"/>
+        <line num="61" type="stmt" count="3"/>
+        <line num="78" type="method" name="executeArrayRequest" visibility="public" complexity="1" crap="1" count="6"/>
+        <line num="80" type="stmt" count="6"/>
+        <line num="82" type="stmt" count="6"/>
+        <line num="97" type="method" name="execute" visibility="public" complexity="3" crap="3" count="9"/>
+        <line num="99" type="stmt" count="9"/>
+        <line num="100" type="stmt" count="2"/>
         <line num="103" type="stmt" count="7"/>
-        <line num="104" type="stmt" count="6"/>
-        <line num="107" type="stmt" count="1"/>
-        <line num="122" type="method" name="processBatchRequests" visibility="private" complexity="4" crap="4" count="2"/>
-        <line num="124" type="stmt" count="2"/>
+        <line num="104" type="stmt" count="7"/>
+        <line num="105" type="stmt" count="6"/>
+        <line num="108" type="stmt" count="1"/>
+        <line num="123" type="method" name="processBatchRequests" visibility="private" complexity="4" crap="4" count="2"/>
         <line num="125" type="stmt" count="2"/>
-        <line num="127" type="stmt" count="2"/>
-        <line num="128" type="stmt" count="1"/>
+        <line num="126" type="stmt" count="2"/>
+        <line num="128" type="stmt" count="2"/>
         <line num="129" type="stmt" count="1"/>
         <line num="130" type="stmt" count="1"/>
-        <line num="133" type="stmt" count="1"/>
-        <line num="137" type="stmt" count="1"/>
-        <line num="151" type="method" name="processRequest" visibility="private" complexity="5" crap="5" count="8"/>
-        <line num="153" type="stmt" count="8"/>
+        <line num="131" type="stmt" count="1"/>
+        <line num="134" type="stmt" count="1"/>
+        <line num="138" type="stmt" count="1"/>
+        <line num="152" type="method" name="processRequest" visibility="private" complexity="4" crap="4" count="8"/>
         <line num="154" type="stmt" count="8"/>
         <line num="155" type="stmt" count="8"/>
         <line num="156" type="stmt" count="8"/>
-        <line num="157" type="stmt" count="2"/>
-        <line num="159" type="stmt" count="7"/>
+        <line num="157" type="stmt" count="8"/>
+        <line num="158" type="stmt" count="2"/>
         <line num="160" type="stmt" count="7"/>
-        <line num="161" type="stmt" count="2"/>
-        <line num="164" type="stmt" count="6"/>
-        <line num="165" type="stmt" count="2"/>
+        <line num="161" type="stmt" count="7"/>
+        <line num="162" type="stmt" count="2"/>
+        <line num="165" type="stmt" count="6"/>
         <line num="166" type="stmt" count="2"/>
         <line num="167" type="stmt" count="2"/>
         <line num="168" type="stmt" count="2"/>
-        <line num="171" type="stmt" count="5"/>
-        <line num="172" type="stmt" count="2"/>
-        <line num="173" type="stmt" count="2"/>
-        <line num="174" type="stmt" count="2"/>
-        <line num="175" type="stmt" count="2"/>
-        <line num="176" type="stmt" count="2"/>
-        <line num="177" type="stmt" count="2"/>
-        <line num="178" type="stmt" count="2"/>
-        <line num="179" type="stmt" count="2"/>
-        <line num="182" type="stmt" count="4"/>
-        <metrics loc="185" ncloc="108" classes="1" methods="6" coveredmethods="6" conditionals="0" coveredconditionals="0" statements="42" coveredstatements="42" elements="48" coveredelements="48"/>
+        <line num="169" type="stmt" count="2"/>
+        <line num="170" type="stmt" count="2"/>
+        <line num="173" type="stmt" count="6"/>
+        <line num="175" type="stmt" count="6"/>
+        <line num="191" type="method" name="processCallableProcedure" visibility="private" complexity="2" crap="2" count="5"/>
+        <line num="194" type="stmt" count="5"/>
+        <line num="195" type="stmt" count="4"/>
+        <line num="196" type="stmt" count="2"/>
+        <line num="197" type="stmt" count="2"/>
+        <line num="198" type="stmt" count="2"/>
+        <line num="199" type="stmt" count="2"/>
+        <line num="200" type="stmt" count="2"/>
+        <line num="201" type="stmt" count="2"/>
+        <line num="202" type="stmt" count="2"/>
+        <line num="203" type="stmt" count="2"/>
+        <line num="206" type="stmt" count="5"/>
+        <metrics loc="209" ncloc="119" classes="1" methods="7" coveredmethods="7" conditionals="0" coveredconditionals="0" statements="46" coveredstatements="46" elements="53" coveredelements="53"/>
       </file>
     </package>
-    <metrics files="17" loc="1095" ncloc="602" classes="12" methods="46" coveredmethods="46" conditionals="0" coveredconditionals="0" statements="165" coveredstatements="165" elements="211" coveredelements="211"/>
+    <metrics files="17" loc="1131" ncloc="618" classes="12" methods="48" coveredmethods="48" conditionals="0" coveredconditionals="0" statements="170" coveredstatements="170" elements="218" coveredelements="218"/>
   </project>
 </coverage>

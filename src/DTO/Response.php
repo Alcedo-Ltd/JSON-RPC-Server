@@ -11,7 +11,7 @@ use Alcedo\JsonRpc\Server\Exception\InvalidResponseException;
  *
  * @author Kiril Savchev <k.savchev@gmail.com>
  */
-readonly class Response implements \JsonSerializable
+class Response implements \JsonSerializable
 {
     use JsonRpcTrait;
 
@@ -27,8 +27,8 @@ readonly class Response implements \JsonSerializable
      * @throws InvalidResponseException If both result and error are set in the response.
      */
     public function __construct(
-        private mixed $result = null,
-        private ?Error $error = null,
+        private readonly mixed $result = null,
+        private readonly ?Error $error = null,
         private int|string|null $id = null
     ) {
         $this->validateResponse();
@@ -62,6 +62,18 @@ readonly class Response implements \JsonSerializable
     public function id(): int|string|null
     {
         return $this->id;
+    }
+
+    /**
+     * Sets the identifier.
+     *
+     * @param int|string|null $id
+     *
+     * @return void
+     */
+    public function setId(int|string|null $id): void
+    {
+        $this->id = $id;
     }
 
     /**

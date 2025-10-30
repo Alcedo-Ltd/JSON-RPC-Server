@@ -17,6 +17,7 @@ use Alcedo\JsonRpc\Server\Factory\RequestFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
+use TypeError;
 
 /**
  * A readonly class implementing a JSON-RPC 2.0 server. Handles the execution of JSON-RPC requests,
@@ -158,19 +159,42 @@ readonly class Server
         }
         $procedure = $this->procedures->get($method);
         if ($procedure instanceof RemoteProcedureInterface) {
-            return $procedure->call(...$params);
+            $response = $procedure->call(...$params);
+        } else {
+            try {
+                $response = $this->processCallableProcedure($procedure, $method, $params, $id);
+            } catch (TypeError) {
+                return new Response(
+                    error: ErrorFactory::serverError(message: 'Procedure is not callable', data: ['method' => $method]),
+                    id: $id
+                );
+            }
         }
+        $response->setId($id);
 
-        if (!is_callable($procedure)) {
-            return new Response(
-                error: ErrorFactory::serverError(message: 'Procedure is not callable', data: ['method' => $method]),
-                id: $id
-            );
-        }
+        return $response;
+    }
+
+    /**
+     * Executes a callable procedure with the provided parameters and handles the response or errors.
+     *
+     * @param callable $procedure The procedure to be executed.
+     * @param string $method The name of the method being invoked, used for error context.
+     * @param array $params The parameters to pass to the callable procedure.
+     * @param int|null $id The optional identifier for the response, used for associating errors or results.
+     *
+     * @return Response Returns a Response object containing the result of the procedure or an error.
+     *
+     * @throws InvalidErrorException If an error occurs during the execution of the procedure.
+     * @throws InvalidResponseException If both result and error are set in the response.
+     */
+    private function processCallableProcedure(callable $procedure, string $method, array $params, ?int $id): Response
+    {
         try {
-            $result = call_user_func_array($procedure, $request->params());
+            $result = call_user_func_array($procedure, $params);
+            $response = new Response(result: $result);
         } catch (\Throwable $e) {
-            return new Response(
+            $response =  new Response(
                 error: ErrorFactory::internalError(
                     message: $e->getMessage(),
                     data: ['method' => $method, 'params' => $params]
@@ -179,6 +203,6 @@ readonly class Server
             );
         }
 
-        return new Response(result: $result, id: $id);
+        return $response;
     }
 }
