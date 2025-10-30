@@ -1,0 +1,20 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
+
+## [v1.0.0] - 2025-10-30
+
+### Changed
+- Response DTO: make `id` non-readonly and set it after executing the procedure to ensure response contains the correct request id.
+
+### Documentation
+- Update generated coverage and docs.
+- Add `.phpdoc/` to `.gitignore`.
+
+## [v1.0.0] - 2025-10-28
+- Initial tagged release.
+
+[v1.0.1]: https://github.com/alcedo-bg/json-rpc-server/releases/tag/v1.0.1
+[v1.0.0]: https://github.com/alcedo-bg/json-rpc-server/releases/tag/v1.0.0
