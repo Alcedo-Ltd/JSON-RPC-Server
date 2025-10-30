@@ -40,11 +40,10 @@ class ServerTest extends TestCase
     public function testExecuteArrayRequestWithRemoteProcedureSuccess(): void
     {
         $fixedId = 123; // the procedure controls the id in the Response
-        $remote = new class($fixedId) implements RemoteProcedureInterface {
-            public function __construct(private int $id) {}
+        $remote = new class implements RemoteProcedureInterface {
             public function call(): Response
             {
-                return new Response(result: 'ok', id: $this->id);
+                return new Response(result: 'ok');
             }
         };
 
