@@ -211,6 +211,11 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Alcedo-JsonRpc-Server-DTO-Response.html#property_id"
         },                {
+            "fqsen": "\\Alcedo\\JsonRpc\\Server\\DTO\\Response\u003A\u003AsetId\u0028\u0029",
+            "name": "setId",
+            "summary": "Sets\u0020the\u0020identifier.",
+            "url": "classes/Alcedo-JsonRpc-Server-DTO-Response.html#method_setId"
+        },                {
             "fqsen": "\\Alcedo\\JsonRpc\\Server\\DTO\\Response\u003A\u003AisError\u0028\u0029",
             "name": "isError",
             "summary": "Determines\u0020if\u0020there\u0020is\u0020an\u0020error\u0020present.",
@@ -365,6 +370,11 @@ Search.appendIndex(
             "name": "processRequest",
             "summary": "Processes\u0020an\u0020incoming\u0020request\u0020and\u0020returns\u0020an\u0020appropriate\u0020response.",
             "url": "classes/Alcedo-JsonRpc-Server-Server.html#method_processRequest"
+        },                {
+            "fqsen": "\\Alcedo\\JsonRpc\\Server\\Server\u003A\u003AprocessCallableProcedure\u0028\u0029",
+            "name": "processCallableProcedure",
+            "summary": "Executes\u0020a\u0020callable\u0020procedure\u0020with\u0020the\u0020provided\u0020parameters\u0020and\u0020handles\u0020the\u0020response\u0020or\u0020errors.",
+            "url": "classes/Alcedo-JsonRpc-Server-Server.html#method_processCallableProcedure"
         },                {
             "fqsen": "\\Alcedo\\JsonRpc\\Server\\Server\u003A\u003A\u0024requestFactory",
             "name": "requestFactory",
