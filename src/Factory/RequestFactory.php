@@ -49,8 +49,8 @@ class RequestFactory
     /**
      * Creates a new Request object from the given array.
      *
-     * @param array $request An associative array containing the request data.
-     *                        Expected keys are 'method', 'id' (optional), and 'params' (optional).
+     * @param array $request An associative array containing the request data for a batch or single request.
+     *                        Expected keys for a single request are 'method', 'id' (optional), and 'params' (optional).
      *
      * @return Request|BatchRequest Returns an initialized Request object.
      *
