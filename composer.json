@@ -32,5 +32,11 @@
     "phpdocumentor/phpdocumentor": "^3.8"
   },
   "minimum-stability": "stable",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "scripts": {
+    "tests": "vendor/bin/phpunit ./tests",
+    "phpcs": "vendor/bin/phpcs",
+    "phpmd": "vendor/bin/phpmd ./src text phpmd.xml",
+    "phpdoc": "vendor/bin/phpdoc run -d ./src -t ./docs"
+  }
 }
