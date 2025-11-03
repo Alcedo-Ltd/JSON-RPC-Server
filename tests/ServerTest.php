@@ -218,6 +218,32 @@ class ServerTest extends TestCase
         $this->assertSame(42, $response->id());
     }
 
+    public function testBatchRequestWithNotificationsOnly(): void
+    {
+        $remote = new class implements RemoteProcedureInterface {
+            public function call(): Response { return new Response(result: 'ok.remote'); }
+        };
+
+        $map = [
+            'sum' => function (int $a, int $b): int { return $a + $b; },
+            'remote.ok' => $remote,
+            'bad.proc' => new \stdClass(),
+            'throws' => function (): void { throw new \RuntimeException('explode'); },
+            'notify' => function (): void {},
+        ];
+        $server = $this->makeServer($map);
+        $jsonBody = [
+            ['jsonrpc' => '2.0', 'method' => 'sum', 'params' => [10, 5]],
+            ['jsonrpc' => '2.0', 'method' => 'remote.ok'], // no params
+            ['jsonrpc' => '2.0', 'method' => 'unknown.method', 'params' => []], // unknown method -> handled as Response error
+            ['jsonrpc' => '2.0', 'method' => 'bad.proc'], // not callable
+            ['jsonrpc' => '2.0', 'method' => 'throws'], // throws -> internal error
+            ['jsonrpc' => '2.0', 'method' => 'notify'], // notification -> omitted from batch response
+        ];
+        $response = $server->executeArrayRequest($jsonBody);
+        $this->assertNull($response);
+    }
+
     public function testExecutePsrRequestBatchWithInvalidElementThrows(): void
     {
         $map = [

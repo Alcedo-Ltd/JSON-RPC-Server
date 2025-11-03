@@ -97,7 +97,12 @@ readonly class Server
     public function execute(Request|BatchRequest $request): Response|BatchResponse|null
     {
         if ($request instanceof BatchRequest) {
-            return $this->processBatchRequests($request);
+            $batchResponse = $this->processBatchRequests($request);
+            if ($batchResponse->count()) {
+                return $batchResponse;
+            }
+
+            return null;
         }
 
         $response = $this->processRequest($request);

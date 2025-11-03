@@ -10,7 +10,6 @@ use Alcedo\JsonRpc\Server\Exception\InvalidBatchElementException;
 use Alcedo\JsonRpc\Server\Exception\InvalidErrorException;
 use Alcedo\JsonRpc\Server\Exception\InvalidMethodNameException;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use ValueError;
 use JsonException;
 
