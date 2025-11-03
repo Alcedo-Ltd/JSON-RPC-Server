@@ -237,6 +237,25 @@ class ServerTest extends TestCase
         $server->executePsrRequest($psrRequest);
     }
 
+    public function testArrayBatchRequest(): void
+    {
+        $remote = new class implements RemoteProcedureInterface {
+            public function call(): Response { return new Response(result: 'ok.remote'); }
+        };
+
+        $map = [
+            'sum' => function (int $a, int $b): int { return $a + $b; },
+            'remote.ok' => $remote,
+        ];
+        $server = $this->makeServer($map);
+        $jsonBody = [
+            ['jsonrpc' => '2.0', 'method' => 'sum', 'id' => 1, 'params' => [10, 5]],
+            ['jsonrpc' => '2.0', 'method' => 'remote.ok', 'id' => 2],
+        ];
+        $response = $server->executeArrayRequest($jsonBody);
+        $this->assertInstanceOf(BatchResponse::class, $response);
+    }
+
     private function makeServer(array $map): Server
     {
         $container = $this->makeContainer($map);

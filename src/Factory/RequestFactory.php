@@ -53,13 +53,19 @@ class RequestFactory
      * @param array $request An associative array containing the request data.
      *                        Expected keys are 'method', 'id' (optional), and 'params' (optional).
      *
-     * @return Request Returns an initialized Request object.
+     * @return Request|BatchRequest Returns an initialized Request object.
      *
      * @throws ErrorException Throws an exception if the 'method' key is missing in the input array.
      * @throws InvalidMethodNameException Throws an exception if the 'method' key contains an invalid method name.
+     * @throws InvalidBatchElementException If the body of the request contains invalid JSON, that cannot be parsed.
+     * @throws InvalidErrorException If the method name is invalid.
      */
-    public function fromArray(array $request): Request
+    public function fromArray(array $request): Request|BatchRequest
     {
+        if (array_key_exists(0, $request)) {
+            return $this->createBatchRequest($request);
+        }
+
         $method = $request['method'] ?? null;
         if (!$method) {
             throw ErrorException::fromErrorCode(ErrorCodes::INVALID_REQUEST);
