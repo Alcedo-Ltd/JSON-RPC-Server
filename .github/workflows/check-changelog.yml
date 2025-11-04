@@ -17,15 +17,14 @@ jobs:
         run: |
           echo "Checking for changes in this push..."
           
-          # Извличаме всички файлове, променени между предишното и текущото състояние
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           
           echo "Changed files:"
           echo "$CHANGED_FILES"
           
           if ! echo "$CHANGED_FILES" | grep -q "^CHANGELOG\.md$"; then
-            echo "❌ CHANGELOG.md was not updated in this release branch push!"
+            echo "CHANGELOG.md was not updated in this release branch push!"
             exit 1
           else
-            echo "✅ CHANGELOG.md was updated."
+            echo "CHANGELOG.md was updated."
           fi
