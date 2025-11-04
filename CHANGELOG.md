@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
+## [v1.2.0] - 2025-11-04
+
+### Changed
+- The original thrown exception is added to the Error object
+- The ability to use the exception message as the error message is added
+- The ability to use the exception trace as the error data is added
+- The ability to use the exception as the error data is added
+- The ability to nest previous exceptions in the error data is added
+
 ## [v1.1.0] - 2025-11-03
 
 ### Changed
@@ -29,6 +38,7 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 ## [v1.0.0] - 2025-10-28
 - Initial tagged release.
 
+[v1.2.0]: https://github.com/alcedo-bg/json-rpc-server/releases/tag/v1.2.0
 [v1.1.0]: https://github.com/alcedo-bg/json-rpc-server/releases/tag/v1.1.0
 [v1.0.2]: https://github.com/alcedo-bg/json-rpc-server/releases/tag/v1.0.2
 [v1.0.1]: https://github.com/alcedo-bg/json-rpc-server/releases/tag/v1.0.1

@@ -117,7 +117,7 @@ class ServerTest extends TestCase
         $this->assertInstanceOf(Response::class, $response);
         $this->assertTrue($response->isError());
         $this->assertSame(ErrorCodes::INTERNAL_ERROR->value, $response->error()->code());
-        $this->assertSame('boom', $response->error()->message());
+        $this->assertSame(ErrorCodes::INTERNAL_ERROR->message(), $response->error()->message());
         $this->assertSame(['method' => 'throws', 'params' => []], $response->error()->jsonSerialize()['data'] ?? null);
     }
 
@@ -198,6 +198,8 @@ class ServerTest extends TestCase
         $this->assertInstanceOf(Response::class, $batchResponse[4]);
         $this->assertTrue($batchResponse[4]->isError());
         $this->assertSame(ErrorCodes::INTERNAL_ERROR->value, $batchResponse[4]->error()->code());
+        $this->assertNotNull($batchResponse[4]->error()->originalException());
+        $this->assertEquals('explode', $batchResponse[4]->error()->originalException()->getMessage());
     }
 
     public function testExecutePsrRequestSingleDelegates(): void
@@ -281,6 +283,57 @@ class ServerTest extends TestCase
         $response = $server->executeArrayRequest($jsonBody);
         $this->assertInstanceOf(BatchResponse::class, $response);
     }
+
+    public function testAddTheOriginalExceptionToTheErrorResponse(): void
+    {
+        $map = [
+            'throws' => function (): void {
+                throw new \RuntimeException('explode');
+            },
+        ];
+        $server = $this->makeServer($map);
+        $jsonBody = ['jsonrpc' => '2.0', 'method' => 'throws', 'id' => 1];
+        $response = $server->executeArrayRequest($jsonBody);
+        $response->error()->useExceptionMessage()->useExceptionTraceAsData();
+        $this->assertSame('explode', $response->error()->message());
+        $this->assertStringContainsString(__CLASS__, $response->error()->data());
+    }
+
+    public function testAddTheNestedExceptionsToTheErrorResponse(): void
+    {
+        $map = [
+            'throws' => function (): void {
+                try {
+                    throw new \RuntimeException('explode');
+                } catch (\RuntimeException $exception) {
+                    throw new \LogicException('nested', 0, $exception);
+                }
+            },
+        ];
+        $server = $this->makeServer($map);
+        $jsonBody = ['jsonrpc' => '2.0', 'method' => 'throws', 'id' => 1];
+        $response = $server->executeArrayRequest($jsonBody);
+        $response->error()->useExceptionAsData()->nestPreviousExceptions();
+        $jsonData = $response->jsonSerialize();
+        $this->assertArrayHasKey('error', $jsonData);
+        $this->assertInstanceOf(Error::class, $jsonData['error']);
+        $error = $jsonData['error']->jsonSerialize();
+        $this->assertArrayHasKey('data', $error);
+        $this->assertArrayHasKey('message', $error['data']);
+        $this->assertEquals('nested', $error['data']['message']);
+        $this->assertArrayHasKey('previous', $error['data']);
+        $this->assertArrayHasKey('message', $error['data']['previous']);
+        $this->assertEquals('explode', $error['data']['previous']['message']);
+        $jsonData['error']->useTheErrorMessage()->useTheErrorData();
+        $error = $jsonData['error']->jsonSerialize();
+        $this->assertArrayHasKey('data', $error);
+        $this->assertArrayHasKey('method', $error['data']);
+        $this->assertEquals('throws', $error['data']['method']);
+        $this->assertArrayHasKey('message', $error);
+        $this->assertEquals(ErrorCodes::INTERNAL_ERROR->message(), $error['message']);
+    }
+
+
 
     private function makeServer(array $map): Server
     {
