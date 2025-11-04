@@ -17,6 +17,7 @@ use Alcedo\JsonRpc\Server\Factory\RequestFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
+use Throwable;
 use TypeError;
 
 /**
@@ -168,11 +169,10 @@ readonly class Server
         } else {
             try {
                 $response = $this->processCallableProcedure($procedure, $method, $params, $id);
-            } catch (TypeError) {
-                return new Response(
-                    error: ErrorFactory::serverError(message: 'Procedure is not callable', data: ['method' => $method]),
-                    id: $id
-                );
+            } catch (TypeError $exception) {
+                $error = ErrorFactory::serverError(message: 'Procedure is not callable', data: ['method' => $method]);
+                $error->setOriginalException($exception);
+                return new Response(error: $error, id: $id);
             }
         }
         $response->setId($id);
@@ -198,14 +198,10 @@ readonly class Server
         try {
             $result = call_user_func_array($procedure, $params);
             $response = new Response(result: $result);
-        } catch (\Throwable $e) {
-            $response =  new Response(
-                error: ErrorFactory::internalError(
-                    message: $e->getMessage(),
-                    data: ['method' => $method, 'params' => $params]
-                ),
-                id: $id
-            );
+        } catch (Throwable $exception) {
+            $error = ErrorFactory::internalError(data: ['method' => $method, 'params' => $params]);
+            $error->setOriginalException($exception);
+            $response =  new Response(error: $error, id: $id);
         }
 
         return $response;

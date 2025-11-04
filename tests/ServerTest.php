@@ -117,7 +117,7 @@ class ServerTest extends TestCase
         $this->assertInstanceOf(Response::class, $response);
         $this->assertTrue($response->isError());
         $this->assertSame(ErrorCodes::INTERNAL_ERROR->value, $response->error()->code());
-        $this->assertSame('boom', $response->error()->message());
+        $this->assertSame(ErrorCodes::INTERNAL_ERROR->message(), $response->error()->message());
         $this->assertSame(['method' => 'throws', 'params' => []], $response->error()->jsonSerialize()['data'] ?? null);
     }
 
@@ -198,6 +198,8 @@ class ServerTest extends TestCase
         $this->assertInstanceOf(Response::class, $batchResponse[4]);
         $this->assertTrue($batchResponse[4]->isError());
         $this->assertSame(ErrorCodes::INTERNAL_ERROR->value, $batchResponse[4]->error()->code());
+        $this->assertNotNull($batchResponse[4]->error()->originalException());
+        $this->assertEquals('explode', $batchResponse[4]->error()->originalException()->getMessage());
     }
 
     public function testExecutePsrRequestSingleDelegates(): void

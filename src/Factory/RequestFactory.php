@@ -93,7 +93,7 @@ class RequestFactory
             try {
                 $batch->append($this->fromArray($item));
             } catch (ErrorException $exception) {
-                $batch->append($exception->toError());
+                $batch->append($exception->toError()->setOriginalException($exception));
             }
         }
 
