@@ -3,6 +3,7 @@
 namespace Alcedo\JsonRpc\Server\DTO;
 
 use Alcedo\JsonRpc\Server\Exception\InvalidErrorException;
+use Throwable;
 
 /**
  * Represents an error with a code, message, and optional data.
@@ -33,6 +34,7 @@ class Error implements \JsonSerializable
         private readonly int $code,
         private string $message = '',
         private readonly mixed $data = null,
+        private ?Throwable $originalException = null
     ) {
         $this->errorCode = ErrorCodes::fromValue($this->code);
         if (!$this->message) {
@@ -68,6 +70,30 @@ class Error implements \JsonSerializable
     public function data(): mixed
     {
         return $this->data;
+    }
+
+    /**
+     * Retrieves the original exception.
+     *
+     * @return Throwable|null
+     */
+    public function originalException(): ?Throwable
+    {
+        return $this->originalException;
+    }
+
+    /**
+     * Sets the original exception.
+     *
+     * @param Throwable|null $originalException
+     *
+     * @return Error
+     */
+    public function setOriginalException(?Throwable $originalException): Error
+    {
+        $this->originalException = $originalException;
+
+        return $this;
     }
 
     /**
