@@ -84,7 +84,7 @@ class Error implements \JsonSerializable
     {
         if ($this->useExceptionTraceAsData && $this->originalException instanceof Throwable) {
             return $this->originalException->getTraceAsString();
-        } else if ($this->useExceptionAsData && $this->originalException instanceof Throwable) {
+        } elseif ($this->useExceptionAsData && $this->originalException instanceof Throwable) {
             return $this->transformException($this->originalException);
         }
 
