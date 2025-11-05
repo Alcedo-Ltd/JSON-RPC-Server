@@ -324,7 +324,7 @@ class ServerTest extends TestCase
         $this->assertArrayHasKey('previous', $error['data']);
         $this->assertArrayHasKey('message', $error['data']['previous']);
         $this->assertEquals('explode', $error['data']['previous']['message']);
-        $jsonData['error']->useTheErrorMessage()->useTheErrorData();
+        $jsonData['error']->useErrorValues();
         $error = $jsonData['error']->jsonSerialize();
         $this->assertArrayHasKey('data', $error);
         $this->assertArrayHasKey('method', $error['data']);

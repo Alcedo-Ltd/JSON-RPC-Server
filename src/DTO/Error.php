@@ -194,9 +194,9 @@ class Error implements \JsonSerializable
             'code' => $this->code(),
             'message' => $this->message(),
         ];
-        $data = $this->data();
-        if ($data !== null) {
-            $data['data'] = $data;
+        $errorData = $this->data();
+        if ($errorData !== null) {
+            $data['data'] = $errorData;
         }
 
         return $data;
