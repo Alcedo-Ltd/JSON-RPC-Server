@@ -17,7 +17,23 @@ use Throwable;
  */
 class Error implements \JsonSerializable
 {
+    private const  ERR_DATA = 0;
+
+    private const  EXCEPTION_DATA = 1;
+
+    private const  EXCEPTION_TRACE_DATA = 2;
+
+    /** Error code. */
     private ErrorCodes $errorCode;
+
+    /** Whether to use the exception message as the error message, defaults to false. */
+    private bool $useExceptionMessage = false;
+
+    /** The data type to use for the error data, defaults to ERR_DATA. */
+    private int $dataType = self::ERR_DATA;
+
+    /** Whether to nest previous exceptions in the error data, defaults to false. */
+    private bool $nestPrevExceptions = false;
 
     /**
      * Constructor method for initializing the object.
@@ -26,10 +42,6 @@ class Error implements \JsonSerializable
      * @param string $message The error message. If not provided, it defaults to a message from the error code.
      * @param mixed|null $data Additional data associated with the object, defaults to null.
      * @param Throwable|null $originalException The original exception that caused the error defaults to null.
-     * @param bool $useExceptionMessage Whether to use the exception message as the error message, defaults to false.
-     * @param bool $useExceptionTraceAsData Whether to use the exception trace as the error data, defaults to false.
-     * @param bool $useExceptionAsData Whether to use the exception as the error data, defaults to false.
-     * @param bool $nestPreviousExceptions Whether to nest previous exceptions in the error data, defaults to false.
      *
      * @return void
      *
@@ -39,11 +51,7 @@ class Error implements \JsonSerializable
         private readonly int $code,
         private string $message = '',
         private readonly mixed $data = null,
-        private ?Throwable $originalException = null,
-        private bool $useExceptionMessage = false,
-        private bool $useExceptionTraceAsData = false,
-        private bool $useExceptionAsData = false,
-        private bool $nestPreviousExceptions = false
+        private ?Throwable $originalException = null
     ) {
         $this->errorCode = ErrorCodes::fromValue($this->code);
         if (!$this->message) {
@@ -82,9 +90,9 @@ class Error implements \JsonSerializable
      */
     public function data(): mixed
     {
-        if ($this->useExceptionTraceAsData && $this->originalException instanceof Throwable) {
+        if ($this->dataType === self::EXCEPTION_TRACE_DATA && $this->originalException instanceof Throwable) {
             return $this->originalException->getTraceAsString();
-        } elseif ($this->useExceptionAsData && $this->originalException instanceof Throwable) {
+        } elseif ($this->dataType === self::EXCEPTION_DATA && $this->originalException instanceof Throwable) {
             return $this->transformException($this->originalException);
         }
 
@@ -128,38 +136,25 @@ class Error implements \JsonSerializable
     }
 
     /**
-     * Use the error message set in the constructor
-     *
-     * @return Error
-     */
-    public function useTheErrorMessage(): Error
-    {
-        $this->useExceptionMessage = false;
-
-        return $this;
-    }
-
-    /**
      * Use the exception trace as data
      *
      * @return Error
      */
     public function useExceptionTraceAsData(): Error
     {
-        $this->useExceptionTraceAsData = true;
+        $this->dataType = self::EXCEPTION_TRACE_DATA;
 
         return $this;
     }
 
     /**
-     * Use the data set in the constructor
+     * Use the data and message set in the constructor
      *
      * @return Error
      */
-    public function useTheErrorData(): Error
+    public function useErrorValues(): Error
     {
-        $this->useExceptionTraceAsData = false;
-        $this->useExceptionAsData = false;
+        $this->dataType = self::ERR_DATA;
 
         return $this;
     }
@@ -171,7 +166,7 @@ class Error implements \JsonSerializable
      */
     public function useExceptionAsData(): Error
     {
-        $this->useExceptionAsData = true;
+        $this->dataType = self::EXCEPTION_DATA;
 
         return $this;
     }
@@ -183,7 +178,7 @@ class Error implements \JsonSerializable
      */
     public function nestPreviousExceptions(): Error
     {
-        $this->nestPreviousExceptions = true;
+        $this->nestPrevExceptions = true;
 
         return $this;
     }
@@ -199,8 +194,9 @@ class Error implements \JsonSerializable
             'code' => $this->code(),
             'message' => $this->message(),
         ];
-        if ($this->data() !== null) {
-            $data['data'] = $this->data();
+        $data = $this->data();
+        if ($data !== null) {
+            $data['data'] = $data;
         }
 
         return $data;
@@ -221,7 +217,7 @@ class Error implements \JsonSerializable
             'file' => $exception->getFile() . '(' . $exception->getLine() . ')',
             'trace' => $exception->getTraceAsString(),
         ];
-        if ($this->nestPreviousExceptions && $exception->getPrevious()) {
+        if ($this->nestPrevExceptions && $exception->getPrevious()) {
             $data['previous'] = $this->transformException($exception->getPrevious());
         }
 
