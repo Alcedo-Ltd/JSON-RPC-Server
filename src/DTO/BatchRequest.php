@@ -24,7 +24,7 @@ class BatchRequest extends Batch
      */
     protected function validateElement(mixed $value): void
     {
-        if (!($value instanceof Request) && !($value instanceof Error)) {
+        if (!($value instanceof JsonRpcMessageInterface)) {
             throw new InvalidBatchElementException('Only Request objects are allowed.');
         }
     }

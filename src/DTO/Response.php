@@ -11,7 +11,7 @@ use Alcedo\JsonRpc\Server\Exception\InvalidResponseException;
  *
  * @author Kiril Savchev <k.savchev@gmail.com>
  */
-class Response implements \JsonSerializable
+class Response implements JsonRpcMessageInterface
 {
     use JsonRpcTrait;
 
@@ -29,9 +29,10 @@ class Response implements \JsonSerializable
     public function __construct(
         private readonly mixed $result = null,
         private readonly ?Error $error = null,
-        private int|string|null $id = null,
+        int|string|null $id = null,
         private ?Request $request = null
     ) {
+        $this->id = $id;
         $this->validateResponse();
     }
 
@@ -53,16 +54,6 @@ class Response implements \JsonSerializable
     public function error(): ?Error
     {
         return $this->error;
-    }
-
-    /**
-     * Retrieves the identifier.
-     *
-     * @return int|string|null The identifier, which can be an integer, string, or null.
-     */
-    public function id(): int|string|null
-    {
-        return $this->id;
     }
 
     /**
@@ -119,16 +110,6 @@ class Response implements \JsonSerializable
     public function isSuccess(): bool
     {
         return !$this->isError();
-    }
-
-    /**
-     * Determines if the response is a notification.
-     *
-     * @return bool True if it is a notification, false otherwise.
-     */
-    public function isNotification(): bool
-    {
-        return $this->id === null;
     }
 
     /**

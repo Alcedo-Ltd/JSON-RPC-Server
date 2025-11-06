@@ -262,9 +262,9 @@ class ServerTest extends TestCase
 
         $psrRequest = $this->createMock(RequestInterface::class);
         $psrRequest->method('getBody')->willReturn($this->createStream($jsonBody));
-
-        $this->expectException(InvalidBatchElementException::class);
-        $server->executePsrRequest($psrRequest);
+        $result = $server->executePsrRequest($psrRequest);
+        $this->assertInstanceOf(BatchResponse::class, $result);
+        $this->assertTrue($result[0]->isError());
     }
 
     public function testArrayBatchRequest(): void
