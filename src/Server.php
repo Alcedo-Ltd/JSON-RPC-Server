@@ -46,7 +46,7 @@ readonly class Server
      *
      * @param RequestInterface $request The PSR-7 request to be processed.
      *
-     * @return Response|BatchResponse|null The processed response.
+     * @return Response|BatchResponse The processed response.
      *
      * @throws ContainerExceptionInterface If the procedure is not found in the container.
      * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
@@ -55,7 +55,7 @@ readonly class Server
      * @throws InvalidMethodNameException
      * @throws ErrorException
      */
-    public function executePsrRequest(RequestInterface $request): Response|BatchResponse|null
+    public function executePsrRequest(RequestInterface $request): Response|BatchResponse
     {
         $rpcRequest = $this->requestFactory->fromServerRequest($request);
 
@@ -67,7 +67,7 @@ readonly class Server
      *
      * @param array $request The request data in array format.
      *
-     * @return Response|BatchResponse|null The response generated from processing the request.
+     * @return Response|BatchResponse The response generated from processing the request.
      *
      * @throws ContainerExceptionInterface If the procedure is not found in the container.
      * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
@@ -76,7 +76,7 @@ readonly class Server
      * @throws InvalidMethodNameException
      * @throws ErrorException
      */
-    public function executeArrayRequest(array $request): Response|BatchResponse|null
+    public function executeArrayRequest(array $request): Response|BatchResponse
     {
         $rpcRequest = $this->requestFactory->fromArray($request);
 
@@ -88,30 +88,20 @@ readonly class Server
      *
      * @param Request|BatchRequest $request The request or batch request to be executed.
      *
-     * @return Response|BatchResponse|null Returns a response, batch response, or null if the request is a notification.
+     * @return Response|BatchResponse Returns a response, batch response.
      *
      * @throws ContainerExceptionInterface If the procedure is not found in the container.
      * @throws InvalidErrorException If the procedure is not callable or an error occurs during execution.
      * @throws InvalidResponseException If both result and error are set in the response.
      * @throws InvalidBatchElementException
      */
-    public function execute(Request|BatchRequest $request): Response|BatchResponse|null
+    public function execute(Request|BatchRequest $request): Response|BatchResponse
     {
         if ($request instanceof BatchRequest) {
-            $batchResponse = $this->processBatchRequests($request);
-            if ($batchResponse->count()) {
-                return $batchResponse;
-            }
-
-            return null;
+            return $this->processBatchRequests($request);
         }
 
-        $response = $this->processRequest($request);
-        if (!$request->isNotification()) {
-            return $response;
-        }
-
-        return null;
+        return $this->processRequest($request);
     }
 
     /**
