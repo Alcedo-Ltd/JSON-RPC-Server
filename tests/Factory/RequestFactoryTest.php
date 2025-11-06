@@ -23,7 +23,7 @@ class RequestFactoryTest extends TestCase
      */
     public function testFromServerRequestSingleRequest(): void
     {
-        $requestArray = ['method' => 'testMethod', 'id' => 1, 'params' => ['param1' => 'value1']];
+        $requestArray = ['jsonrpc' => '2.0', 'method' => 'testMethod', 'id' => 1, 'params' => ['param1' => 'value1']];
         $jsonBody = json_encode($requestArray);
         $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
@@ -45,7 +45,7 @@ class RequestFactoryTest extends TestCase
      */
     public function testFromServerRequestWithNullParams(): void
     {
-        $jsonBody = json_encode(['method' => 'testMethod', 'id' => 1]);
+        $jsonBody = json_encode(['jsonrpc' => '2.0', 'method' => 'testMethod', 'id' => 1]);
         $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
@@ -64,8 +64,8 @@ class RequestFactoryTest extends TestCase
     public function testFromServerRequestBatchRequest(): void
     {
         $jsonBody = json_encode([
-            ['method' => 'testMethod1', 'id' => 1, 'params' => ['param1' => 'value1']],
-            ['method' => 'testMethod2', 'id' => 2, 'params' => ['param2' => 'value2']],
+            ['jsonrpc' => '2.0', 'method' => 'testMethod1', 'id' => 1, 'params' => ['param1' => 'value1']],
+            ['jsonrpc' => '2.0', 'method' => 'testMethod2', 'id' => 2, 'params' => ['param2' => 'value2']],
         ]);
         $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
@@ -96,9 +96,10 @@ class RequestFactoryTest extends TestCase
         $mockRequest->method('getBody')->willReturn($this->createStream("{invalid: 'json'}"));
 
         $factory = new RequestFactory();
-
-        $this->expectException(ErrorException::class);
-        $factory->fromServerRequest($mockRequest);
+        $result = $factory->fromServerRequest($mockRequest);
+        $this->assertInstanceOf(Response::class, $result);
+        $this->assertTrue($result->isError());
+        $this->assertEquals(ErrorCodes::PARSE_ERROR->value, $result->error()->code());
     }
 
     /**
@@ -148,6 +149,26 @@ class RequestFactoryTest extends TestCase
         $result = $factory->fromServerRequest($mockRequest);
         $this->assertInstanceOf(Response::class, $result);
         $this->assertEquals(ErrorCodes::INVALID_REQUEST->value, $result->error()->code());;
+    }
+
+    public function testBatchRequestWithInvalidContent(): void
+    {
+        $requestBody = [
+            ['method' => 'testMethod1', 'id' => 1, 'params' => ['param1' => 'value1']], // no jsonrpc
+            [ // nested array:
+                ['jsonrpc' => '2.0', 'method' => 'testMethod2', 'id' => 2, 'params' => ['param2' => 'value2']],
+                'id' => 3,
+            ],
+            ['jsonrpc' => '2.0', 'method' => 'rpc.testMethod3', 'id' => 4, 'params' => ['param3' => 'value3']],
+        ];
+        $factory = new RequestFactory();
+        $results = $factory->fromArray($requestBody);
+        $this->assertInstanceOf(Response::class, $results[0]);
+        $this->assertTrue($results[0]->isError());
+        $this->assertInstanceOf(Response::class, $results[1]);
+        $this->assertTrue($results[1]->isError());
+        $this->assertInstanceOf(Response::class, $results[2]);
+        $this->assertTrue($results[2]->isError());
     }
     
     public function testValidateBatchResponse(): void

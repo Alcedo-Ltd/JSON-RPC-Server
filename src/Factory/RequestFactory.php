@@ -41,7 +41,10 @@ class RequestFactory
         try {
             $body = json_decode($request->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException | ValueError $exception) {
-            throw ErrorException::fromErrorCode(ErrorCodes::PARSE_ERROR, $exception);
+            return new Response(error: new Error(
+                ErrorCodes::PARSE_ERROR->value,
+                originalException: $exception
+            ));
         }
         if (array_key_exists(0, $body)) {
             return $this->createBatchRequest($body);
@@ -59,7 +62,8 @@ class RequestFactory
      * @return Request|BatchRequest Returns an initialized Request object.
      *
      * @throws InvalidBatchElementException If the body of the request contains invalid JSON, that cannot be parsed.
-     * @throws InvalidErrorException|InvalidResponseException If the method name is invalid.
+     * @throws InvalidErrorException If the error code is invalid.
+     * @throws InvalidResponseException If the response contains both a result and an error.
      */
     public function fromArray(array $request): JsonRpcMessageInterface|BatchRequest
     {
@@ -67,6 +71,10 @@ class RequestFactory
         try {
             if (array_key_exists(0, $request)) {
                 return $this->createBatchRequest($request);
+            }
+
+            if (!array_key_exists('jsonrpc', $request) || $request['jsonrpc'] !== Request::VERSION) {
+                throw ErrorException::fromErrorCode(ErrorCodes::INVALID_REQUEST);
             }
 
             $method = $request['method'] ?? null;
@@ -99,12 +107,22 @@ class RequestFactory
      * @throws InvalidBatchElementException If the body of the request contains invalid JSON, that cannot be parsed.
      * @throws InvalidErrorException If the error code is invalid.
      * @throws InvalidResponseException If the response contains both a result and an error.
+     * @throws InvalidMethodNameException
+     * @throws ErrorException
      */
     private function createBatchRequest(array $request): BatchRequest
     {
         $batch = new BatchRequest();
         foreach ($request as $item) {
-            $batch->append($this->fromArray($item));
+            if (array_key_exists(0, $item)) {
+                $result = new Response(error: ErrorFactory::invalidRequest(data: $item));
+                if (array_key_exists('id', $item)) {
+                    $result->setId($item['id']);
+                }
+            } else {
+                $result = $this->fromArray($item);
+            }
+            $batch->append($result);
         }
 
         return $batch;
