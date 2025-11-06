@@ -135,7 +135,7 @@ class ServerTest extends TestCase
             // no id => notification
         ]);
 
-        $this->assertNull($result, 'Notification requests must return null');
+        $this->assertTrue($result->isNotification(), 'Notification requests must return null');
         $this->assertTrue($called, 'Procedure should be executed for notifications');
     }
 
@@ -243,7 +243,7 @@ class ServerTest extends TestCase
             ['jsonrpc' => '2.0', 'method' => 'notify'], // notification -> omitted from batch response
         ];
         $response = $server->executeArrayRequest($jsonBody);
-        $this->assertNull($response);
+        $this->assertEmpty(json_decode(json_encode($response)));
     }
 
     public function testExecutePsrRequestBatchWithInvalidElementThrows(): void

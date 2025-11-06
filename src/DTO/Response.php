@@ -97,22 +97,33 @@ class Response implements \JsonSerializable
     }
 
     /**
-     * @inheritDoc
+     * Determines if the response is a notification.
+     *
+     * @return bool True if it is a notification, false otherwise.
+     */
+    public function isNotification(): bool
+    {
+        return $this->id === null;
+    }
+
+    /**
+     * Specifies data that should be serialized to JSON.
      *
      * @return array
      */
     public function jsonSerialize(): array
     {
-        $data = [
-            'jsonrpc' => $this->jsonRpc(),
-        ];
-        if ($this->isSuccess()) {
-            $data['result'] = $this->result;
-        } else {
-            $data['error'] = $this->error;
-        }
-        if ($this->id !== null) {
-            $data['id'] = $this->id;
+        $data = [];
+        if (!$this->isNotification()) {
+            $data['jsonrpc'] = $this->jsonRpc();
+            if ($this->isSuccess()) {
+                $data['result'] = $this->result;
+            } else {
+                $data['error'] = $this->error;
+            }
+            if ($this->id !== null) {
+                $data['id'] = $this->id;
+            }
         }
 
         return $data;
