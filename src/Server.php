@@ -151,7 +151,11 @@ readonly class Server
         $method = $request->method();
         $params = $request->params();
         if (!$this->procedures->has($method)) {
-            return new Response(error: ErrorFactory::methodNotFound(data: ['method' => $method]), id: $id);
+            return new Response(
+                error: ErrorFactory::methodNotFound(data: ['method' => $method]),
+                id: $id,
+                request: $request,
+            );
         }
         $procedure = $this->procedures->get($method);
         if ($procedure instanceof RemoteProcedureInterface) {
@@ -165,7 +169,7 @@ readonly class Server
                 return new Response(error: $error, id: $id);
             }
         }
-        $response->setId($id);
+        $response->for($request)->setId($id);
 
         return $response;
     }
