@@ -5,6 +5,7 @@ namespace Alcedo\Tests\JsonRpc\Server;
 use Alcedo\JsonRpc\Server\DTO\BatchResponse;
 use Alcedo\JsonRpc\Server\DTO\Error;
 use Alcedo\JsonRpc\Server\DTO\ErrorCodes;
+use Alcedo\JsonRpc\Server\DTO\Request;
 use Alcedo\JsonRpc\Server\DTO\Response;
 use Alcedo\JsonRpc\Server\Factory\RequestFactory;
 use Alcedo\JsonRpc\Server\RemoteProcedureInterface;
@@ -135,7 +136,7 @@ class ServerTest extends TestCase
             // no id => notification
         ]);
 
-        $this->assertNull($result, 'Notification requests must return null');
+        $this->assertTrue($result->isNotification(), 'Notification requests must return null');
         $this->assertTrue($called, 'Procedure should be executed for notifications');
     }
 
@@ -218,6 +219,7 @@ class ServerTest extends TestCase
         $this->assertTrue($response->isSuccess());
         $this->assertSame('hello', $response->result());
         $this->assertSame(42, $response->id());
+        $this->assertInstanceOf(Request::class, $response->request());
     }
 
     public function testBatchRequestWithNotificationsOnly(): void
@@ -243,7 +245,7 @@ class ServerTest extends TestCase
             ['jsonrpc' => '2.0', 'method' => 'notify'], // notification -> omitted from batch response
         ];
         $response = $server->executeArrayRequest($jsonBody);
-        $this->assertNull($response);
+        $this->assertEmpty(json_decode(json_encode($response)));
     }
 
     public function testExecutePsrRequestBatchWithInvalidElementThrows(): void
@@ -260,9 +262,9 @@ class ServerTest extends TestCase
 
         $psrRequest = $this->createMock(RequestInterface::class);
         $psrRequest->method('getBody')->willReturn($this->createStream($jsonBody));
-
-        $this->expectException(InvalidBatchElementException::class);
-        $server->executePsrRequest($psrRequest);
+        $result = $server->executePsrRequest($psrRequest);
+        $this->assertInstanceOf(BatchResponse::class, $result);
+        $this->assertTrue($result[0]->isError());
     }
 
     public function testArrayBatchRequest(): void

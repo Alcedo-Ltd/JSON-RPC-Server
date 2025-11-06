@@ -15,18 +15,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check if CHANGELOG.md was modified in this push
+      - name: Find last tag
+        id: get_tag
         run: |
-          echo "Checking for changes in this push..."
-          
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-          
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-          
-          if ! echo "$CHANGED_FILES" | grep -q "^CHANGELOG\.md$"; then
-            echo "CHANGELOG.md was not updated in this release branch push!"
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+          echo "⚠️ No previous tags found — skipping comparison."
+          echo "has_tag=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found last tag: $LAST_TAG"
+            echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
+            echo "has_tag=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compare CHANGELOG.md with last tag
+        if: steps.get_tag.outputs.has_tag == 'true'
+        run: |
+          echo "Comparing CHANGELOG.md between tag '${{ steps.get_tag.outputs.last_tag }}' and current HEAD..."
+              
+          if git diff --quiet ${{ steps.get_tag.outputs.last_tag }} HEAD -- CHANGELOG.md; then
+            echo "❌ CHANGELOG.md has no changes since last tag!"
             exit 1
           else
-            echo "CHANGELOG.md was updated."
+            echo "✅ CHANGELOG.md has been updated since last tag."
           fi

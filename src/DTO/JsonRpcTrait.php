@@ -11,6 +11,11 @@ namespace Alcedo\JsonRpc\Server\DTO;
  */
 trait JsonRpcTrait
 {
+    public const VERSION = '2.0';
+
+    /** The JSON-RPC message identifier. */
+    private int|string|null $id;
+
     /**
      * Retrieves the JSON-RPC version.
      *
@@ -18,6 +23,26 @@ trait JsonRpcTrait
      */
     public function jsonRpc(): string
     {
-        return '2.0';
+        return self::VERSION;
+    }
+
+    /**
+     * The JSON-RPC message identifier.
+     *
+     * @return int|string|null
+     */
+    public function id(): int|string|null
+    {
+        return $this->id;
+    }
+
+    /**
+     * Determines if the JSON-RPC message is a notification.
+     *
+     * @return bool True if it is a notification, false otherwise.
+     */
+    public function isNotification(): bool
+    {
+        return $this->id === null;
     }
 }

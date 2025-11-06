@@ -10,7 +10,7 @@ use Alcedo\JsonRpc\Server\Exception\InvalidMethodNameException;
  *
  * @author Kiril Savchev <k.savchev@gmail.com>
  */
-readonly class Request implements \JsonSerializable
+class Request implements JsonRpcMessageInterface
 {
     use JsonRpcTrait;
 
@@ -28,8 +28,9 @@ readonly class Request implements \JsonSerializable
     public function __construct(
         private string $method,
         private array $params = [],
-        private int|string|null $id = null
+        int|string|null $id = null
     ) {
+        $this->id = $id;
         $this->validateMethod();
     }
 
@@ -51,26 +52,6 @@ readonly class Request implements \JsonSerializable
     public function params(): array
     {
         return $this->params;
-    }
-
-    /**
-     * Retrieves the identifier.
-     *
-     * @return int|string|null The identifier, which can be an integer, a string, or null.
-     */
-    public function id(): int|string|null
-    {
-        return $this->id;
-    }
-
-    /**
-     * Determines if the current instance represents a notification.
-     *
-     * @return bool True if it is a notification, false otherwise.
-     */
-    public function isNotification(): bool
-    {
-        return $this->id === null;
     }
 
     /**

@@ -11,7 +11,7 @@ use Alcedo\JsonRpc\Server\Exception\InvalidResponseException;
  *
  * @author Kiril Savchev <k.savchev@gmail.com>
  */
-class Response implements \JsonSerializable
+class Response implements JsonRpcMessageInterface
 {
     use JsonRpcTrait;
 
@@ -29,8 +29,10 @@ class Response implements \JsonSerializable
     public function __construct(
         private readonly mixed $result = null,
         private readonly ?Error $error = null,
-        private int|string|null $id = null
+        int|string|null $id = null,
+        private ?Request $request = null
     ) {
+        $this->id = $id;
         $this->validateResponse();
     }
 
@@ -55,16 +57,6 @@ class Response implements \JsonSerializable
     }
 
     /**
-     * Retrieves the identifier.
-     *
-     * @return int|string|null The identifier, which can be an integer, string, or null.
-     */
-    public function id(): int|string|null
-    {
-        return $this->id;
-    }
-
-    /**
      * Sets the identifier.
      *
      * @param int|string|null $id
@@ -74,6 +66,30 @@ class Response implements \JsonSerializable
     public function setId(int|string|null $id): void
     {
         $this->id = $id;
+    }
+
+    /**
+     * Sets the request for the response.
+     *
+     * @param Request $request The request object that is associated with the response.
+     *
+     * @return Response
+     */
+    public function for(Request $request): Response
+    {
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
+     * The request that was sent to the server.
+     *
+     * @return Request|null
+     */
+    public function request(): ?Request
+    {
+        return $this->request;
     }
 
     /**
@@ -97,22 +113,23 @@ class Response implements \JsonSerializable
     }
 
     /**
-     * @inheritDoc
+     * Specifies data that should be serialized to JSON.
      *
      * @return array
      */
     public function jsonSerialize(): array
     {
-        $data = [
-            'jsonrpc' => $this->jsonRpc(),
-        ];
-        if ($this->isSuccess()) {
-            $data['result'] = $this->result;
-        } else {
-            $data['error'] = $this->error;
-        }
-        if ($this->id !== null) {
-            $data['id'] = $this->id;
+        $data = [];
+        if (!$this->isNotification()) {
+            $data['jsonrpc'] = $this->jsonRpc();
+            if ($this->isSuccess()) {
+                $data['result'] = $this->result;
+            } else {
+                $data['error'] = $this->error;
+            }
+            if ($this->id !== null) {
+                $data['id'] = $this->id;
+            }
         }
 
         return $data;

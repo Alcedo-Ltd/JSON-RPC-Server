@@ -37,7 +37,7 @@ class JsonRpcTest extends TestCase
     {
         $batch = new BatchRequest();
         $this->expectException(InvalidBatchElementException::class);
-        $batch->append(new Response(result: 'success', id: 1));
+        $batch->append(new Error(ErrorCodes::INTERNAL_ERROR->value, data: 'testdata'));
     }
 
     public function testExchangeBatchContent(): void
