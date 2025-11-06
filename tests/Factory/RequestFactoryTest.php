@@ -3,9 +3,13 @@
 namespace Alcedo\Tests\JsonRpc\Server\Factory;
 
 use Alcedo\JsonRpc\Server\DTO\BatchRequest;
+use Alcedo\JsonRpc\Server\DTO\BatchResponse;
 use Alcedo\JsonRpc\Server\DTO\Error;
+use Alcedo\JsonRpc\Server\DTO\ErrorCodes;
 use Alcedo\JsonRpc\Server\DTO\Request;
+use Alcedo\JsonRpc\Server\DTO\Response;
 use Alcedo\JsonRpc\Server\Exception\ErrorException;
+use Alcedo\JsonRpc\Server\Exception\InvalidBatchElementException;
 use Alcedo\JsonRpc\Server\Exception\InvalidMethodNameException;
 use Alcedo\JsonRpc\Server\Factory\RequestFactory;
 use PHPUnit\Framework\TestCase;
@@ -107,9 +111,9 @@ class RequestFactoryTest extends TestCase
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
         $factory = new RequestFactory();
-
-        $this->expectException(ErrorException::class);
-        $factory->fromServerRequest($mockRequest);
+        $result = $factory->fromServerRequest($mockRequest);
+        $this->assertInstanceOf(Response::class, $result);
+        $this->assertTrue($result->isError());
     }
 
     /**
@@ -125,7 +129,9 @@ class RequestFactoryTest extends TestCase
 
         $factory = new RequestFactory();
         $batch = $factory->fromServerRequest($mockRequest);
-        $this->assertInstanceOf(Error::class, $batch[0]);
+        $this->assertInstanceOf(Response::class, $batch[0]);
+        $this->assertTrue($batch[0]->isError());
+        $this->assertEquals(ErrorCodes::INVALID_REQUEST->value, $batch[0]->error()->code());
     }
 
     public function testFromServerRequestWithInvalidMethodName(): void
@@ -139,8 +145,16 @@ class RequestFactoryTest extends TestCase
         $mockRequest->method('getBody')->willReturn($this->createStream($jsonBody));
 
         $factory = new RequestFactory();
-        $this->expectException(InvalidMethodNameException::class);
-        $factory->fromServerRequest($mockRequest);
+        $result = $factory->fromServerRequest($mockRequest);
+        $this->assertInstanceOf(Response::class, $result);
+        $this->assertEquals(ErrorCodes::INVALID_REQUEST->value, $result->error()->code());;
+    }
+    
+    public function testValidateBatchResponse(): void
+    {
+        $response = new BatchResponse();
+        $this->expectException(InvalidBatchElementException::class);
+        $response->append(new Error(ErrorCodes::INTERNAL_ERROR->value, data: 'testdata'));
     }
 
     /**
