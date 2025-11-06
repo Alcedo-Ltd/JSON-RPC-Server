@@ -5,6 +5,7 @@ namespace Alcedo\Tests\JsonRpc\Server;
 use Alcedo\JsonRpc\Server\DTO\BatchResponse;
 use Alcedo\JsonRpc\Server\DTO\Error;
 use Alcedo\JsonRpc\Server\DTO\ErrorCodes;
+use Alcedo\JsonRpc\Server\DTO\Request;
 use Alcedo\JsonRpc\Server\DTO\Response;
 use Alcedo\JsonRpc\Server\Factory\RequestFactory;
 use Alcedo\JsonRpc\Server\RemoteProcedureInterface;
@@ -218,6 +219,7 @@ class ServerTest extends TestCase
         $this->assertTrue($response->isSuccess());
         $this->assertSame('hello', $response->result());
         $this->assertSame(42, $response->id());
+        $this->assertInstanceOf(Request::class, $response->request());
     }
 
     public function testBatchRequestWithNotificationsOnly(): void
