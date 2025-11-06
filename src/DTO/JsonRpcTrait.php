@@ -11,6 +11,8 @@ namespace Alcedo\JsonRpc\Server\DTO;
  */
 trait JsonRpcTrait
 {
+    public const VERSION = '2.0';
+
     /** The JSON-RPC message identifier. */
     private int|string|null $id;
 
@@ -21,7 +23,7 @@ trait JsonRpcTrait
      */
     public function jsonRpc(): string
     {
-        return '2.0';
+        return self::VERSION;
     }
 
     /**
