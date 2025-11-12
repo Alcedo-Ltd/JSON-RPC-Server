@@ -17,10 +17,7 @@ class BatchResponse extends Batch
      */
     public function jsonSerialize(): array
     {
-        return array_filter(array_map(
-            fn (Response $response) => !$response->isNotification(),
-            parent::jsonSerialize()
-        ));
+        return array_filter($this->getArrayCopy(), fn (Response $response) => !$response->isNotification());
     }
 
     /**
