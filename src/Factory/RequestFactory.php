@@ -64,15 +64,16 @@ class RequestFactory
      * @throws InvalidBatchElementException If the body of the request contains invalid JSON, that cannot be parsed.
      * @throws InvalidErrorException If the error code is invalid.
      * @throws InvalidResponseException If the response contains both a result and an error.
+     * @throws InvalidMethodNameException
+     * @throws ErrorException
      */
     public function fromArray(array $request): JsonRpcMessageInterface|BatchRequest
     {
-
+        if (array_key_exists(0, $request)) {
+            return $this->createBatchRequest($request);
+        }
+        $id = $request['id'] ?? null;
         try {
-            if (array_key_exists(0, $request)) {
-                return $this->createBatchRequest($request);
-            }
-
             if (!array_key_exists('jsonrpc', $request) || $request['jsonrpc'] !== Request::VERSION) {
                 throw ErrorException::fromErrorCode(ErrorCodes::INVALID_REQUEST);
             }
@@ -81,16 +82,15 @@ class RequestFactory
             if (!$method) {
                 throw ErrorException::fromErrorCode(ErrorCodes::INVALID_REQUEST);
             }
-            $id = $request['id'] ?? null;
             $params = $request['params'] ?? [];
             $request = new Request($method, $params, $id);
         } catch (InvalidMethodNameException $exception) {
-            $request = new Response(error: new Error(
-                ErrorCodes::INVALID_REQUEST->value,
-                message: $exception->getMessage()
-            ));
+            $request = new Response(
+                error: new Error(ErrorCodes::INVALID_REQUEST->value, message: $exception->getMessage()),
+                id: $id
+            );
         } catch (ErrorException $exception) {
-            $request = new Response(error: $exception->toError()->setOriginalException($exception));
+            $request = new Response(error: $exception->toError()->setOriginalException($exception), id: $id);
         }
 
         return $request;
