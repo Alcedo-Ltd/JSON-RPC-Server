@@ -11,6 +11,19 @@ use Alcedo\JsonRpc\Server\Exception\InvalidBatchElementException;
 class BatchResponse extends Batch
 {
     /**
+     * Filter out the notifications from the batch response.
+     *
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return array_filter(array_map(
+            fn (Response $response) => !$response->isNotification(),
+            parent::jsonSerialize()
+        ));
+    }
+
+    /**
      * Validates that the provided value is an instance of Request.
      *
      * @param mixed $value The value to validate.

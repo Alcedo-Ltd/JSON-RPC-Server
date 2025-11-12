@@ -166,7 +166,7 @@ readonly class Server
             } catch (TypeError $exception) {
                 $error = ErrorFactory::serverError(message: 'Procedure is not callable', data: ['method' => $method]);
                 $error->setOriginalException($exception);
-                return new Response(error: $error, id: $id);
+                return new Response(error: $error, id: $id, request: $request);
             }
         }
         $response->for($request)->setId($id);
